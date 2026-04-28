@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C c:/Users/roman/Documents/projects/Claude_Beeper status --short)",
+      "Bash(git -C c:/Users/roman/Documents/projects/Claude_Beeper diff --stat CLAUDE.md)"
+    ]
+  }
+}
