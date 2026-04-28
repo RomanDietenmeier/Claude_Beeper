@@ -30,7 +30,7 @@ This is the behavior the script must satisfy. The numbering matters; later rules
 - **`mss`** — screen capture. ~30× faster than `pyautogui`/Pillow, cross-platform via ctypes, negligible CPU at 1 Hz. Use `mss().monitors[0]` to capture the union of all monitors.
 - **`opencv-python`** — `cv2.matchTemplate` with `TM_CCOEFF_NORMED`. The standard approach for finding a small fixed image inside a larger one.
 - **`numpy`** — already an OpenCV dependency; needed to convert mss frames into the array shape OpenCV expects.
-- **`pygame.mixer.music`** — audio. Cross-platform, plays MP3/WAV/OGG asynchronously, and is a *single-stream* primitive by design: `load() / play() / stop() / get_busy()` operate on one music stream, so the single-stream invariant (rule 7) is structurally enforced. Avoid `pygame.mixer.Sound` (per-channel, can overlap), `playsound` (Windows reliability issues), and `winsound` (Windows-only, WAV-only).
+- **`python-vlc`** — audio. Delegates decoding to a locally-installed VLC, so it plays anything VLC can play (MP3, OPUS, OGG, WAV, FLAC, …). The pure-pip alternatives don't cover Opus: pygame's bundled SDL2_mixer (Windows wheels) is built `formats=ogg,mp3,mod,mid`, and `pyminiaudio`/`just_playback` only do wav/flac/vorbis/mp3. Reuse one `vlc.Instance("--no-video", "--quiet")` and create a fresh `MediaPlayer` per beep — calling `.stop()` on the player you currently hold (combined with the cooldown gate) keeps the single-stream invariant (rule 7) trivially.
 
 ## Asset directories
 
@@ -45,5 +45,5 @@ This is the behavior the script must satisfy. The numbering matters; later rules
 - Convert both screenshot and templates to grayscale before matching — ~30 % speedup with negligible accuracy loss for these high-contrast glyphs.
 - Threshold around 0.85 with `TM_CCOEFF_NORMED`. Lower toward 0.8 if matches are missed; raise toward 0.9 if false positives appear.
 - Iterate templates and short-circuit on the first hit — no need to know *which* image matched.
-- For rules 5 and 6, each cooldown tick should check `pygame.mixer.music.get_busy()` and call `.stop()` if (a) the screenshot is clean, or (b) `time.monotonic() - beep_started_at >= 10`.
+- For rules 5 and 6, each cooldown tick should call `player.stop()` if the screenshot is clean, and call `player.stop()` if `player.is_playing()` and `time.monotonic() - beep_started_at >= 10`.
 - Use `time.monotonic()` (not `time.time()`) for the 10 s timer — wall-clock jumps shouldn't affect it.

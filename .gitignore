@@ -1,1 +1,4 @@
 beeps/
+.venv/
+__pycache__/
+*.pyc
