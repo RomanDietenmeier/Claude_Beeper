@@ -10,7 +10,7 @@ import vlc
 
 ROOT = Path(__file__).parent
 # TM_SQDIFF_NORMED scoring: lower = better. 0 = perfect, 1 = total mismatch.
-THRESHOLD = 0.001
+THRESHOLD = 0.0001
 POLL_S = 1.0
 CLEAN_REQUIRED = 3
 MAX_BEEP_S = 10.0
@@ -50,11 +50,12 @@ def screen_has_match() -> bool:
         score = float(result[y, x])
         if score < best_score:
             best_score, best_idx, best_xy = score, i, (int(x), int(y))
+
+    print(
+        f"min sqdiff: {best_score:.4f}  template[{best_idx}]  at xy={best_xy}",
+        flush=True,
+    )
     if DEBUG:
-        print(
-            f"min sqdiff: {best_score:.4f}  template[{best_idx}]  at xy={best_xy}",
-            flush=True,
-        )
         cv2.imwrite(str(ROOT / "_debug_last_screen.png"), screen)
         if best_idx >= 0:
             th, tw = TEMPLATES[best_idx][0].shape
