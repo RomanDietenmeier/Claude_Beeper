@@ -2,3 +2,4 @@ beeps/
 .venv/
 __pycache__/
 *.pyc
+_debug_*
